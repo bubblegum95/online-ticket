@@ -4,6 +4,7 @@ import {
   Index,
   OneToMany,
   PrimaryGeneratedColumn,
+  CreateDateColumn,
 } from 'typeorm';
 
 import { Role } from '../types/userRole.type';
@@ -29,7 +30,7 @@ export class User {
   @Column({ type: 'enum', enum: Role, default: Role.User })
   role: Role;
 
-  @Column({ type: 'datetime' })
+  @CreateDateColumn({ type: 'datetime' })
   createdAt: Date;
 
   @Column({ type: 'int', nullable: true })

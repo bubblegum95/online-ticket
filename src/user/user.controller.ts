@@ -16,17 +16,12 @@ export class UserController {
 
   @Post('signup')
   async signUp(@Body() signUpDto: SignUpDto) {
-    return await this.userService.signUp(
-      signUpDto.email,
-      signUpDto.userName,
-      signUpDto.password,
-      signUpDto.confirmPassword,
-    );
+    return await this.userService.signUp(signUpDto);
   }
 
   @Post('signin')
   async signIn(@Body() signInDto: SignInDto) {
-    return await this.userService.signIn(signInDto.email, signInDto.password);
+    return await this.userService.signIn(signInDto);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -37,9 +32,9 @@ export class UserController {
       email: user.email,
       name: user.userName,
       role: user.role,
-      createdAt: user.createdAt,
       phone: user.phone,
       address: user.address,
+      createdAt: user.createdAt,
     };
   }
 

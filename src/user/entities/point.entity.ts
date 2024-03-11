@@ -5,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
   Index,
   JoinColumn,
+  CreateDateColumn,
 } from 'typeorm';
 import { Reason } from '../types/historyReason.type';
 import { User } from './user.entity';
@@ -26,7 +27,7 @@ export default class PointHistory {
   @Column({ type: 'int', nullable: false, default: 50000 })
   changedPoint: number;
 
-  @Column({ type: 'datetime', nullable: false })
+  @CreateDateColumn({ type: 'datetime', nullable: false })
   changedAt: Date;
 
   @ManyToOne(() => User, (User) => User.pointHistory)

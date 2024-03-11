@@ -1,31 +1,43 @@
-import * as _ from 'lodash';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { UserService } from 'src/user/user.service';
-
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Strategy, ExtractJwt } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-
+import { Request as RequestType } from 'express';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { UserService } from 'src/user/user.service';
+import _ from 'lodash';
+import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
-    private readonly configService: ConfigService,
     private readonly userService: UserService,
+    private readonly configService: ConfigService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([JwtStrategy.extractJWT]),
       ignoreExpiration: false,
-      secretOrKey: configService.get('JWT_SECRET_KEY'),
+      secretOrKey: process.env.JWT_SECRET_KEY,
     });
   }
-
+  private static extractJWT(req: RequestType): string | null {
+    const { authorization } = req.cookies;
+    if (authorization) {
+      const [tokenType, token] = authorization.split(' ');
+      if (tokenType !== 'Bearer')
+        throw new BadRequestException('토큰 타입이 일치하지 않습니다.');
+      if (token) {
+        return token;
+      }
+    }
+    return null;
+  }
   async validate(payload: any) {
     const user = await this.userService.findByEmail(payload.email);
-    // user가 null 또는 undefined인 경우 true를 반환한다.
     if (_.isNil(user)) {
       throw new NotFoundException('해당하는 사용자를 찾을 수 없습니다.');
     }
-
     return user;
   }
 }

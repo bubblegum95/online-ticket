@@ -11,6 +11,8 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { User } from './entities/user.entity';
+import { SignUpDto } from './dto/signUp.dto';
+import { SignInDto } from './dto/signIn.dto';
 
 @Injectable()
 export class UserService {
@@ -20,12 +22,8 @@ export class UserService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signUp(
-    email: string,
-    userName: string,
-    password: string,
-    confirmPassword: string,
-  ) {
+  async signUp(signUpDto: SignUpDto) {
+    const { email, userName, password, confirmPassword } = signUpDto;
     const existingUser = await this.findByEmail(email);
 
     if (existingUser) {
@@ -46,7 +44,8 @@ export class UserService {
     });
   }
 
-  async signIn(email: string, password: string) {
+  async signIn(signInDto: SignInDto) {
+    const { email, password } = signInDto;
     const user = await this.userRepository.findOne({
       select: ['userId', 'email', 'password'],
       where: { email },

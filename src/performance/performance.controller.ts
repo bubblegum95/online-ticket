@@ -1,4 +1,58 @@
-import { Controller } from '@nestjs/common';
+import { Roles } from 'src/auth/roles.decorator';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { AuthGuard } from '@nestjs/passport';
+import { Role } from 'src/user/types/userRole.type';
 
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
+import { PerformanceService } from './performance.service';
+import { PostPerformDto } from './dto/postperform.dto';
+
+@UseGuards(RolesGuard)
 @Controller('performance')
-export class PerformanceController {}
+export class PerformanceController {
+  constructor(private readonly performanceService: PerformanceService) {}
+
+  @Get()
+  async findAll() {
+    return await this.performanceService.findAllPerform();
+  }
+
+  @Get(':performId')
+  async findOne(@Param('performId') performId: number) {
+    return await this.performanceService.findOnePerform(performId);
+  }
+
+  @Roles(Role.Admin)
+  @Post()
+  async create(@Body() postPerformDto: PostPerformDto) {
+    const postPerform =
+      await this.performanceService.createPerform(postPerformDto);
+    return postPerform;
+  }
+
+  @Roles(Role.Admin)
+  @UseGuards(AuthGuard('jwt'))
+  @Put(':performId')
+  async update(
+    @Param('performId') performId: number,
+    @Body() postPerformDto: PostPerformDto,
+  ) {
+    await this.performanceService.updatePerform(performId, postPerformDto);
+  }
+
+  @Roles(Role.Admin)
+  @UseGuards(AuthGuard('jwt'))
+  @Delete(':performId')
+  async delete(@Param('performId') performId: number) {
+    await this.performanceService.deletePerform(performId);
+  }
+}

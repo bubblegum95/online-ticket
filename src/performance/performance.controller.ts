@@ -15,6 +15,8 @@ import {
 } from '@nestjs/common';
 import { PerformanceService } from './performance.service';
 import { PostPerformDto } from './dto/postperform.dto';
+import { User } from 'src/user/entities/user.entity';
+import { UserInfo } from 'src/utils/userInfo.decorator';
 
 @UseGuards(RolesGuard)
 @Controller('performance')
@@ -32,10 +34,13 @@ export class PerformanceController {
   }
 
   @Roles(Role.Admin)
+  @UseGuards(AuthGuard('jwt'))
   @Post()
-  async create(@Body() postPerformDto: PostPerformDto) {
-    const postPerform =
-      await this.performanceService.createPerform(postPerformDto);
+  async create(@Body() postPerformDto: PostPerformDto, @UserInfo() user: User) {
+    const postPerform = await this.performanceService.createPerform(
+      postPerformDto,
+      user,
+    );
     return postPerform;
   }
 

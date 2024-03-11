@@ -18,7 +18,7 @@ export default class PointHistory {
   @PrimaryGeneratedColumn()
   historyId: number;
 
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'varchar', nullable: false })
   userId: number;
 
   @Column({ type: 'varchar', nullable: true })

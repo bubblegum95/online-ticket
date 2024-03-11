@@ -13,6 +13,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { SignUpDto } from './dto/signUp.dto';
 import { SignInDto } from './dto/signIn.dto';
+import { Role } from './types/userRole.type';
 
 @Injectable()
 export class UserService {
@@ -41,6 +42,29 @@ export class UserService {
       email,
       userName,
       password: hashedPassword,
+    });
+  }
+
+  async adminSignUp(signUpDto: SignUpDto) {
+    const { email, userName, password, confirmPassword } = signUpDto;
+    const existingUser = await this.findByEmail(email);
+
+    if (existingUser) {
+      throw new ConflictException(
+        '이미 해당 이메일로 가입된 사용자가 있습니다!',
+      );
+    }
+
+    if (password !== confirmPassword) {
+      throw new ConflictException('비밀번호가 일치하지 않습니다.');
+    }
+
+    const hashedPassword = await hash(password, 10);
+    await this.userRepository.save({
+      email,
+      userName,
+      password: hashedPassword,
+      role: Role.Admin,
     });
   }
 

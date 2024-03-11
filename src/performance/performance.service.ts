@@ -4,6 +4,7 @@ import { PostPerformDto } from './dto/postperform.dto';
 import Performance from './entities/performance.entity';
 import { JwtService } from '@nestjs/jwt';
 import { Repository } from 'typeorm';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class PerformanceService {
@@ -23,8 +24,13 @@ export class PerformanceService {
     });
   }
 
-  async createPerform(postPerformDto: PostPerformDto) {
-    return await this.performanceRepository.save(postPerformDto);
+  async createPerform(postPerformDto: PostPerformDto, user: User) {
+    const postPerform = this.performanceRepository.create({
+      userId: user.userId,
+      ...postPerformDto,
+    });
+
+    return await this.performanceRepository.save(postPerform);
   }
 
   async updatePerform(performId: number, postPerformDto: PostPerformDto) {

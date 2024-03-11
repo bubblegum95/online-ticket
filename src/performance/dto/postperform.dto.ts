@@ -1,4 +1,4 @@
-import { IsDate, IsString, IsNotEmpty, IsEnum } from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum } from 'class-validator';
 import { Category } from '../types/category.type';
 import { SaleStatus } from '../types/salestatus.type';
 
@@ -7,9 +7,9 @@ export class PostPerformDto {
   @IsNotEmpty({ message: '제목을 입력해 주세요.' })
   performName: string;
 
-  @IsDate()
+  @IsString()
   @IsNotEmpty({ message: '행사가 시작하는 일자를 입력해주세요.' })
-  startDate: Date;
+  startDate: string;
 
   @IsString()
   @IsNotEmpty({ message: '행사가 진행되는 장소를 입력해주세요.' })

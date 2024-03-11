@@ -1,5 +1,5 @@
 export enum SaleStatus {
-  WaitingFor,
-  Sale,
-  SoldOut,
+  WaitingFor = 'WaitingFor',
+  Sale = 'Sale',
+  SoldOut = 'SoldOut',
 }

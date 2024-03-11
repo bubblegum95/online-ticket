@@ -1,10 +1,10 @@
 export enum Category {
-  Concert,
-  Musical,
-  Sports,
-  Event,
-  Classic,
-  Theater,
-  Dancing,
-  Exhibition,
+  Concert = 'Concert',
+  Musical = 'Musical',
+  Sports = 'Sports',
+  Event = 'Event',
+  Classic = 'Classic',
+  Theater = 'Theater',
+  Dancing = 'Dancing',
+  Exhibition = 'Exhibition',
 }

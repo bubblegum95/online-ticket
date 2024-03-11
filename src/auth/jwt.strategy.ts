@@ -7,7 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
-import _ from 'lodash';
+import * as _ from 'lodash';
 import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {

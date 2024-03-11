@@ -9,6 +9,7 @@ import {
 
 import { Role } from '../types/userRole.type';
 import PointHistory from './point.entity';
+import Performance from 'src/performance/entities/performance.entity';
 
 @Index('email', ['email'], { unique: true })
 @Entity({
@@ -41,4 +42,7 @@ export class User {
 
   @OneToMany(() => PointHistory, (pointHistory) => pointHistory.user)
   pointHistory: PointHistory[];
+
+  @OneToMany(() => Performance, (performance) => performance.user)
+  performance: Performance[];
 }

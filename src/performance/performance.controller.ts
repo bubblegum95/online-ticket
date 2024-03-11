@@ -33,6 +33,11 @@ export class PerformanceController {
     return await this.performanceService.findOnePerform(performId);
   }
 
+  @Post('search')
+  async search(@Body('performName') performName: string) {
+    return await this.performanceService.searchPerform(performName);
+  }
+
   @Roles(Role.Admin)
   @UseGuards(AuthGuard('jwt'))
   @Post()

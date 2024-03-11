@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { User } from './user/entities/user.entity';
 import { PerformanceModule } from './performance/performance.module';
+import { ReservationModule } from './reservation/reservation.module';
 import PointHistory from './user/entities/point.entity';
 import Performance from './performance/entities/performance.entity';
 
@@ -48,6 +49,7 @@ const typeOrmModuleOptions = {
     AuthModule,
     UserModule,
     PerformanceModule,
+    ReservationModule,
   ],
   controllers: [],
   providers: [],

@@ -24,6 +24,12 @@ export class PerformanceService {
     });
   }
 
+  async searchPerform(performName: string) {
+    return await this.performanceRepository.find({
+      where: { performName },
+    });
+  }
+
   async createPerform(postPerformDto: PostPerformDto, user: User) {
     const postPerform = this.performanceRepository.create({
       userId: user.userId,

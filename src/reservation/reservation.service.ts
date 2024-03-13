@@ -2,6 +2,8 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import Reservation from './entities/reservation.entity';
@@ -10,6 +12,7 @@ import { DataSource, Repository } from 'typeorm';
 import Seat from 'src/seat/entities/seat.entity';
 import PointHistory from 'src/pointhistory/entities/pointhistory.entity';
 import { Reason } from 'src/user/types/historyReason.type';
+import Performance from 'src/performance/entities/performance.entity';
 
 @Injectable()
 export class ReservationService {
@@ -22,6 +25,9 @@ export class ReservationService {
 
     @InjectRepository(Seat)
     private readonly seatRepository: Repository<Seat>,
+
+    @InjectRepository(Performance)
+    private readonly performanceRepository: Repository<Performance>,
 
     private readonly dataSource: DataSource,
   ) {}
@@ -106,5 +112,82 @@ export class ReservationService {
       where: { userId },
       select: [],
     });
+  }
+
+  async deleteTicket(user: User, reservationId: number) {
+    const foundTicket = await this.reservationRepository.findOne({
+      where: { reservationId },
+    });
+
+    console.log(foundTicket);
+
+    if (!foundTicket) {
+      throw new NotFoundException('찾고 있는 예약이 존재하지 않습니다.');
+    }
+    // 티켓 환불 가능 일자 벨리데이션
+    const today = new Date();
+
+    const foundStartDate = await this.performanceRepository.findOne({
+      where: { performId: foundTicket.performId },
+      select: { startDate: true },
+    });
+
+    if (foundStartDate.startDate < today) {
+      throw new BadRequestException('예약 취소 기간이 만료되었습니다.');
+    }
+
+    if (user.userId !== foundTicket.userId) {
+      throw new UnauthorizedException('예약 취소 권한이 없습니다.');
+    }
+
+    const penalty = foundTicket.totalPrice * 0.6;
+
+    console.log('penalty', penalty);
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      // 환불하기 절차: 환불 금액 가져와서 히스토리에 포스팅 -> 예약 정보 삭제하기 -> 좌석에 아이디 빼주고 sale true로 변경
+
+      queryRunner.manager.softDelete(Reservation, reservationId);
+      console.log(reservationId);
+
+      await queryRunner.manager
+        .getRepository(Reservation)
+        .createQueryBuilder()
+        .update()
+        .set({ cancelledAt: today })
+        .where('reservationId = :reservationId', {
+          reservationId: reservationId,
+        })
+        .execute();
+      console.log(foundTicket.reservedSeat);
+      const seatArr = JSON.parse(foundTicket.reservedSeat);
+
+      console.log('seatArr', seatArr);
+
+      for (let i = 0; i < seatArr.length; i++) {
+        await queryRunner.manager
+          .getRepository(Seat)
+          .update({ seatId: seatArr[i] }, { sale: true, userId: null });
+      }
+      console.log('업데이트가 잘못됨');
+      const refund = await queryRunner.manager
+        .getRepository(PointHistory)
+        .save({
+          userId: user.userId,
+          changedPoint: penalty,
+          reason: Reason.Refund,
+        });
+      console.log(refund);
+      await queryRunner.commitTransaction();
+
+      return refund;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

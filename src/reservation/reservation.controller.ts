@@ -1,14 +1,21 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/user/entities/user.entity';
 import { UserInfo } from 'src/utils/userInfo.decorator';
-
+@UseGuards(AuthGuard('jwt'))
 @Controller('reservation')
 export class ReservationController {
   constructor(private readonly reservationService: ReservationService) {}
 
-  @UseGuards(AuthGuard('jwt'))
   @Post(':performId')
   async reserveTicket(
     @Body() seatId,
@@ -18,10 +25,22 @@ export class ReservationController {
     return await this.reservationService.reserveTicket(seatId, user, performId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
   @Get()
   async getMyTicket(@UserInfo() user: User) {
     const ticketInfo = await this.reservationService.getMyTicket(user);
+
+    return ticketInfo;
+  }
+
+  @Delete(':reservationId')
+  async deleteTicket(
+    @UserInfo() user: User,
+    @Param('reservationId') reservationId: number,
+  ) {
+    const ticketInfo = await this.reservationService.deleteTicket(
+      user,
+      reservationId,
+    );
 
     return ticketInfo;
   }

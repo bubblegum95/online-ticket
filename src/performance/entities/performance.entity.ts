@@ -26,8 +26,8 @@ export default class Performance {
   @Column({ type: 'varchar', nullable: false })
   performName: string;
 
-  @Column({ type: 'varchar', nullable: false })
-  startDate: string;
+  @Column({ type: 'datetime', nullable: false })
+  startDate: Date;
 
   @Column({ type: 'varchar', nullable: false })
   address: string;

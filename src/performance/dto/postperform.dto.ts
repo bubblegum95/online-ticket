@@ -9,7 +9,7 @@ export class PostPerformDto {
 
   @IsString()
   @IsNotEmpty({ message: '행사가 시작하는 일자를 입력해주세요.' })
-  startDate: string;
+  startDate: Date;
 
   @IsString()
   @IsNotEmpty({ message: '행사가 진행되는 장소를 입력해주세요.' })

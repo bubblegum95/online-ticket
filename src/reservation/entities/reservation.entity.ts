@@ -3,6 +3,7 @@ import Performance from 'src/performance/entities/performance.entity';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -28,6 +29,9 @@ export default class Reservation {
 
   @CreateDateColumn({ type: 'datetime', nullable: false })
   reservedAt: Date;
+
+  @DeleteDateColumn({ type: 'datetime', nullable: false })
+  cancelledAt: Date;
 
   @ManyToOne(() => User, (User) => User.reservation)
   @JoinColumn({ name: 'userId' })

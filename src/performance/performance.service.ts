@@ -3,14 +3,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PostPerformDto } from './dto/postperform.dto';
 import Performance from './entities/performance.entity';
 import { JwtService } from '@nestjs/jwt';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
+import Seat from 'src/seat/entities/seat.entity';
 
 @Injectable()
 export class PerformanceService {
   constructor(
     @InjectRepository(Performance)
     private readonly performanceRepository: Repository<Performance>,
+
+    private dataSource: DataSource,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -31,12 +34,54 @@ export class PerformanceService {
   }
 
   async createPerform(postPerformDto: PostPerformDto, user: User) {
-    const postPerform = this.performanceRepository.create({
-      userId: user.userId,
-      ...postPerformDto,
-    });
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const postPerform = await queryRunner.manager
+        .getRepository(Performance)
+        .save({
+          userId: user.userId,
+          performName: postPerformDto.performName,
+          startDate: postPerformDto.startDate,
+          address: postPerformDto.address,
+          content: postPerformDto.content,
+          category: postPerformDto.category,
+          sale: postPerformDto.sale,
+        });
 
-    return await this.performanceRepository.save(postPerform);
+      const { row, column, defaultPrice, priceLevel } = postPerformDto;
+      const { performId } = postPerform;
+
+      for (let i = 1; i <= row; i++) {
+        const rowToAlphabet = String.fromCharCode(64 + i);
+        const price = defaultPrice + (defaultPrice / 100) * priceLevel * i;
+
+        for (let j = 1; j <= column; j++) {
+          const seatNumber = rowToAlphabet + j;
+          await queryRunner.manager.getRepository(Seat).save({
+            performId,
+            seatNumber,
+            price,
+          });
+        }
+      }
+
+      await queryRunner.commitTransaction();
+
+      return {
+        performId: postPerform.performId,
+        category: postPerform.category,
+        startDate: postPerform.startDate,
+        address: postPerform.address,
+        content: postPerform.content,
+        sale: postPerform.sale,
+      };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async updatePerform(performId: number, postPerformDto: PostPerformDto) {

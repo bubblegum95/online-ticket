@@ -1,6 +1,6 @@
 import { compare, hash } from 'bcrypt';
 import * as _ from 'lodash';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 import {
   ConflictException,
@@ -14,6 +14,8 @@ import { User } from './entities/user.entity';
 import { SignUpDto } from './dto/signUp.dto';
 import { SignInDto } from './dto/signIn.dto';
 import { Role } from './types/userRole.type';
+import PointHistory from 'src/pointhistory/entities/pointhistory.entity';
+import { Reason } from './types/historyReason.type';
 
 @Injectable()
 export class UserService {
@@ -21,6 +23,7 @@ export class UserService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private readonly jwtService: JwtService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async signUp(signUpDto: SignUpDto) {
@@ -38,11 +41,34 @@ export class UserService {
     }
 
     const hashedPassword = await hash(password, 10);
-    await this.userRepository.save({
-      email,
-      userName,
-      password: hashedPassword,
-    });
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const createUser = await queryRunner.manager.getRepository(User).save({
+        email,
+        userName,
+        password: hashedPassword,
+      });
+
+      console.log(createUser);
+
+      const chargePoint = await queryRunner.manager
+        .getRepository(PointHistory)
+        .save({
+          userId: createUser.userId,
+          changedPoint: 1000000,
+          reason: Reason.Charge,
+        });
+
+      console.log(chargePoint);
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async adminSignUp(signUpDto: SignUpDto) {

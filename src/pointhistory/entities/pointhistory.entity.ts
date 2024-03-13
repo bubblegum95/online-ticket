@@ -7,12 +7,13 @@ import {
   JoinColumn,
   CreateDateColumn,
 } from 'typeorm';
-import { Reason } from '../types/historyReason.type';
-import { User } from './user.entity';
+import { Reason } from '../../user/types/historyReason.type';
+import { User } from '../../user/entities/user.entity';
+//import Performance from 'src/performance/entities/performance.entity';
 
 @Index('historyId', ['historyId'], { unique: true })
 @Entity({
-  name: 'pointHistories',
+  name: 'pointHistory',
 })
 export default class PointHistory {
   @PrimaryGeneratedColumn()
@@ -24,7 +25,7 @@ export default class PointHistory {
   @Column({ type: 'varchar', nullable: true })
   reason: Reason;
 
-  @Column({ type: 'int', nullable: false, default: 50000 })
+  @Column({ type: 'int', nullable: false })
   changedPoint: number;
 
   @CreateDateColumn({ type: 'datetime', nullable: false })
@@ -33,4 +34,8 @@ export default class PointHistory {
   @ManyToOne(() => User, (User) => User.pointHistory)
   @JoinColumn({ name: 'userId' })
   user: User;
+
+  // @ManyToOne(() => Performance, (Performance) => Performance.pointHistory)
+  // @JoinColumn({ name: 'performId' })
+  // performance: Performance;
 }

@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
+import PointHistory from 'src/pointhistory/entities/pointhistory.entity';
 @Module({
   imports: [
     JwtModule.registerAsync({
@@ -13,7 +14,7 @@ import { UserService } from './user.service';
       }),
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, PointHistory]),
   ],
   providers: [UserService],
   controllers: [UserController],

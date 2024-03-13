@@ -8,8 +8,9 @@ import {
 } from 'typeorm';
 
 import { Role } from '../types/userRole.type';
-import PointHistory from './point.entity';
+import PointHistory from '../../pointhistory/entities/pointhistory.entity';
 import Performance from 'src/performance/entities/performance.entity';
+import Reservation from 'src/reservation/entities/reservation.entity';
 
 @Index('email', ['email'], { unique: true })
 @Entity({
@@ -45,4 +46,7 @@ export class User {
 
   @OneToMany(() => Performance, (performance) => performance.user)
   performance: Performance[];
+
+  @OneToMany(() => Reservation, (reservation) => reservation.user)
+  reservation: Reservation[];
 }

@@ -5,19 +5,22 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Category } from '../types/category.type';
 import { SaleStatus } from '../types/salestatus.type';
 import { User } from 'src/user/entities/user.entity';
+import Reservation from 'src/reservation/entities/reservation.entity';
+import Seat from 'src/seat/entities/seat.entity';
 
 @Index('performId', ['performId'], { unique: true })
-@Entity({ name: 'performance' })
+@Entity()
 export default class Performance {
   @PrimaryGeneratedColumn()
   performId: number;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'int', nullable: false })
   userId: number;
 
   @Column({ type: 'varchar', nullable: false })
@@ -35,7 +38,12 @@ export default class Performance {
   @Column({ type: 'enum', enum: Category, nullable: false })
   category: Category;
 
-  @Column({ type: 'enum', enum: SaleStatus, nullable: false })
+  @Column({
+    type: 'enum',
+    enum: SaleStatus,
+    nullable: false,
+    default: SaleStatus.Sale,
+  })
   sale: SaleStatus; // 판매 중이면 true, 아니면 false
 
   @CreateDateColumn({ type: 'datetime', nullable: false })
@@ -44,4 +52,10 @@ export default class Performance {
   @ManyToOne(() => User, (User) => User.performance)
   @JoinColumn({ name: 'userId' })
   user: User;
+
+  @OneToMany(() => Reservation, (Reservation) => Reservation.performance)
+  reservation: Reservation[];
+
+  @OneToMany(() => Seat, (Seat) => Seat.performance, { onDelete: 'CASCADE' })
+  seat: Seat[];
 }

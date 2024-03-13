@@ -45,16 +45,4 @@ export class UserController {
       createdAt: user.createdAt,
     };
   }
-
-  // @UseGuards(AuthGuard('jwt'))
-  // @Get('profile/history')
-  // getPointHistory(@History() pointHistory: PointHistory) {
-  //   return {
-  //     historyId: pointHistory.historyId,
-  //     userId: pointHistory.userId,
-  //     reason: pointHistory.reason,
-  //     changedPoint: pointHistory.changedPoint,
-  //     changedAt: pointHistory.changedAt,
-  //   };
-  // }
 }

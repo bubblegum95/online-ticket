@@ -1,5 +1,5 @@
 export enum Reason {
-  Buy,
-  Refund,
-  Charge,
+  Buy = 'Buy',
+  Refund = 'Refund',
+  Charge = 'Charge',
 }

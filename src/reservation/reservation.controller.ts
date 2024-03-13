@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/user/entities/user.entity';
@@ -16,5 +16,13 @@ export class ReservationController {
     @UserInfo() user: User,
   ) {
     return await this.reservationService.reserveTicket(seatId, user, performId);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get()
+  async getMyTicket(@UserInfo() user: User) {
+    const ticketInfo = await this.reservationService.getMyTicket(user);
+
+    return ticketInfo;
   }
 }

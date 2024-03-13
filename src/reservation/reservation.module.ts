@@ -7,6 +7,7 @@ import Performance from 'src/performance/entities/performance.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import Reservation from './entities/reservation.entity';
 import Seat from 'src/seat/entities/seat.entity';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import Seat from 'src/seat/entities/seat.entity';
       PointHistory,
       Reservation,
     ]),
+    UserModule,
   ],
   controllers: [ReservationController],
   providers: [ReservationService],

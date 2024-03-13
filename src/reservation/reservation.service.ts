@@ -98,4 +98,13 @@ export class ReservationService {
       await queryRunner.release();
     }
   }
+
+  async getMyTicket(user: User) {
+    const { userId } = user;
+    console.log('userId', userId);
+    return await this.reservationRepository.find({
+      where: { userId },
+      select: [],
+    });
+  }
 }

@@ -1,5 +1,4 @@
 import { UserInfo } from 'src/utils/userInfo.decorator';
-//import { History } from 'src/utils/pointHistory.decorator';
 
 import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -7,7 +6,6 @@ import { AuthGuard } from '@nestjs/passport';
 import { SignUpDto } from './dto/signUp.dto';
 import { SignInDto } from './dto/signIn.dto';
 import { User } from './entities/user.entity';
-//import PointHistory from './entities/point.entity';
 import { UserService } from './user.service';
 
 @Controller('user')

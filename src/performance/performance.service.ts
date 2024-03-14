@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostPerformDto } from './dto/postperform.dto';
 import Performance from './entities/performance.entity';
@@ -26,9 +26,34 @@ export class PerformanceService {
   }
 
   async findOnePerform(performId: number) {
-    return await this.performanceRepository.findOne({
+    const findPerform = await this.performanceRepository.findOne({
       where: { performId },
     });
+
+    if (!findPerform) {
+      throw new NotFoundException('해당 공연을 찾을 수 없습니다.');
+    }
+    const performance = await this.performanceRepository.findOne({
+      relations: {
+        seat: true,
+      },
+      where: {
+        performId,
+        seat: {
+          sale: true,
+        },
+      },
+      select: {
+        seat: {
+          seatId: true,
+          seatNumber: true,
+          price: true,
+        },
+      },
+    });
+
+    console.log(performance);
+    return performance;
   }
 
   async searchPerform(performName: string) {

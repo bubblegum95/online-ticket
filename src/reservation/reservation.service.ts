@@ -124,15 +124,18 @@ export class ReservationService {
     if (!foundTicket) {
       throw new NotFoundException('찾고 있는 예약이 존재하지 않습니다.');
     }
-    // 티켓 환불 가능 일자 벨리데이션
-    const today = new Date();
 
     const foundStartDate = await this.performanceRepository.findOne({
       where: { performId: foundTicket.performId },
       select: { startDate: true },
     });
 
-    if (foundStartDate.startDate < today) {
+    const today = new Date();
+    const deadline = new Date(
+      foundStartDate.startDate.getTime() + 3 * 60 * 60 * 1000,
+    );
+
+    if (deadline < today) {
       throw new BadRequestException('예약 취소 기간이 만료되었습니다.');
     }
 

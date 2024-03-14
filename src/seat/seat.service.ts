@@ -9,4 +9,8 @@ export class SeatService {
     @InjectRepository(Seat)
     private readonly seatRepository: Repository<Seat>,
   ) {}
+
+  ableToReserveSeat(performId: number) {
+    return this.seatRepository.find({ where: { performId, sale: true } });
+  }
 }

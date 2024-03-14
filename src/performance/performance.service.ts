@@ -6,12 +6,16 @@ import { JwtService } from '@nestjs/jwt';
 import { DataSource, Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import Seat from 'src/seat/entities/seat.entity';
+import { PutPerformDto } from './dto/putperform.dto';
 
 @Injectable()
 export class PerformanceService {
   constructor(
     @InjectRepository(Performance)
     private readonly performanceRepository: Repository<Performance>,
+
+    @InjectRepository(Seat)
+    private readonly seatRepository: Repository<Seat>,
 
     private dataSource: DataSource,
     private readonly jwtService: JwtService,
@@ -43,6 +47,7 @@ export class PerformanceService {
         .save({
           userId: user.userId,
           performName: postPerformDto.performName,
+          thumbnail: postPerformDto.thumbnail,
           startDate: postPerformDto.startDate,
           address: postPerformDto.address,
           content: postPerformDto.content,
@@ -55,7 +60,7 @@ export class PerformanceService {
 
       for (let i = 1; i <= row; i++) {
         const rowToAlphabet = String.fromCharCode(64 + i);
-        const price = defaultPrice + (defaultPrice / 100) * priceLevel * i;
+        const price = defaultPrice - (defaultPrice / 100) * priceLevel * i;
 
         for (let j = 1; j <= column; j++) {
           const seatNumber = rowToAlphabet + j;
@@ -71,6 +76,7 @@ export class PerformanceService {
 
       return {
         performId: postPerform.performId,
+        thumbnail: postPerform.thumbnail,
         category: postPerform.category,
         startDate: postPerform.startDate,
         address: postPerform.address,
@@ -84,24 +90,42 @@ export class PerformanceService {
     }
   }
 
-  async updatePerform(performId: number, postPerformDto: PostPerformDto) {
+  async updatePerform(performId: number, putPerformDto: PutPerformDto) {
     const { performName, startDate, address, content, category, sale } =
-      postPerformDto;
+      putPerformDto;
 
-    return await this.performanceRepository
-      .createQueryBuilder()
-      .update(Performance)
-      .set({ performName, startDate, address, content, category, sale })
-      .where('performId = :performId', { performId: performId })
-      .execute();
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      return await this.performanceRepository
+        .createQueryBuilder()
+        .update(Performance)
+        .set({ performName, startDate, address, content, category, sale })
+        .where('performId = :performId', { performId: performId })
+        .execute();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async deletePerform(performId: number) {
-    return await this.performanceRepository
-      .createQueryBuilder()
-      .delete()
-      .from(Performance)
-      .where('performId = :performId', { performId: performId })
-      .execute();
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      await queryRunner.manager
+        .getRepository(Seat)
+        .delete({ performId: performId });
+      await queryRunner.manager.getRepository(Performance).delete(performId);
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

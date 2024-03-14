@@ -11,12 +11,14 @@ import {
   Param,
   Post,
   Put,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { PerformanceService } from './performance.service';
 import { PostPerformDto } from './dto/postperform.dto';
 import { User } from 'src/user/entities/user.entity';
 import { UserInfo } from 'src/utils/userInfo.decorator';
+import { PutPerformDto } from './dto/putperform.dto';
 
 @UseGuards(RolesGuard)
 @Controller('performance')
@@ -54,15 +56,16 @@ export class PerformanceController {
   @Put(':performId')
   async update(
     @Param('performId') performId: number,
-    @Body() postPerformDto: PostPerformDto,
+    @Body() putPerformDto: PutPerformDto,
   ) {
-    await this.performanceService.updatePerform(performId, postPerformDto);
+    await this.performanceService.updatePerform(performId, putPerformDto);
   }
 
   @Roles(Role.Admin)
   @UseGuards(AuthGuard('jwt'))
   @Delete(':performId')
-  async delete(@Param('performId') performId: number) {
+  async delete(@Param('performId') performId: number, @Res() res) {
     await this.performanceService.deletePerform(performId);
+    res.send('공연을 삭제하였습니다.');
   }
 }

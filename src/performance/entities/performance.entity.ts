@@ -32,11 +32,14 @@ export default class Performance {
   @Column({ type: 'varchar', nullable: false })
   address: string;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'text', nullable: false })
   content: string;
 
   @Column({ type: 'enum', enum: Category, nullable: false })
   category: Category;
+
+  @Column({ type: 'varchar', nullable: true })
+  thumbnail: string;
 
   @Column({
     type: 'enum',

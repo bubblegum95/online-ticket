@@ -22,17 +22,40 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+
+    @InjectRepository(User)
+    private pointHistoryRepository: Repository<PointHistory>,
+
     private readonly jwtService: JwtService,
     private readonly dataSource: DataSource,
   ) {}
 
+  async findByEmail(email: string) {
+    return await this.userRepository.findOne({
+      where: { email },
+    });
+  }
+
+  async findByNickname(nickname: string) {
+    return await this.userRepository.findOne({
+      where: { nickname },
+    });
+  }
+
   async signUp(signUpDto: SignUpDto) {
-    const { email, userName, password, confirmPassword } = signUpDto;
+    const { email, userName, password, confirmPassword, nickname } = signUpDto;
     const existingUser = await this.findByEmail(email);
+    const existingNickname = await this.findByNickname(nickname);
 
     if (existingUser) {
       throw new ConflictException(
         '이미 해당 이메일로 가입된 사용자가 있습니다!',
+      );
+    }
+
+    if (existingNickname) {
+      throw new ConflictException(
+        '이미 해당 닉네임을 사용하는 회원이 있습니다.',
       );
     }
 
@@ -51,19 +74,14 @@ export class UserService {
         email,
         userName,
         password: hashedPassword,
+        nickname,
       });
 
-      console.log(createUser);
-
-      const chargePoint = await queryRunner.manager
-        .getRepository(PointHistory)
-        .save({
-          userId: createUser.userId,
-          changedPoint: 1000000,
-          reason: Reason.Charge,
-        });
-
-      console.log(chargePoint);
+      await queryRunner.manager.getRepository(PointHistory).save({
+        userId: createUser.userId,
+        point: 1000000,
+        reason: Reason.Charge,
+      });
     } catch (error) {
       await queryRunner.rollbackTransaction();
     } finally {
@@ -72,12 +90,19 @@ export class UserService {
   }
 
   async adminSignUp(signUpDto: SignUpDto) {
-    const { email, userName, password, confirmPassword } = signUpDto;
+    const { email, userName, nickname, password, confirmPassword } = signUpDto;
     const existingUser = await this.findByEmail(email);
+    const existingNickname = await this.findByNickname(nickname);
 
     if (existingUser) {
       throw new ConflictException(
         '이미 해당 이메일로 가입된 사용자가 있습니다!',
+      );
+    }
+
+    if (existingNickname) {
+      throw new ConflictException(
+        '이미 해당 닉네임을 사용하는 회원이 있습니다.',
       );
     }
 
@@ -90,6 +115,7 @@ export class UserService {
       email,
       userName,
       password: hashedPassword,
+      nickname,
       role: Role.Admin,
     });
   }
@@ -115,10 +141,28 @@ export class UserService {
     };
   }
 
-  async findByEmail(email: string) {
-    return await this.userRepository.findOne({
-      where: { email },
-      relations: ['pointHistory'],
-    });
+  async getProfile(user: User) {
+    // 사용자와 연결된 포인트 이력을 합산하여 총 포인트를 가져옵니다.
+    const totalPointHistory = await this.dataSource
+      .getRepository(PointHistory)
+      .createQueryBuilder('pointHistory')
+      .select('SUM(pointHistory.point)', 'totalPoint')
+      .where('pointHistory.userId = :userId', { userId: user.userId }) // 포인트 이력의 userId 필드를 기준으로 필터링합니다.
+      .getRawOne();
+
+    // 총 포인트를 사용자 엔티티에 추가합니다.
+    const myPoint = totalPointHistory.totalPoint;
+    console.log(myPoint);
+    return {
+      userId: user.userId,
+      userName: user.userName,
+      email: user.email,
+      nickname: user.nickname,
+      role: user.role,
+      createdAt: user.createdAt,
+      phone: user.phone,
+      address: user.address,
+      myPoint: myPoint,
+    };
   }
 }

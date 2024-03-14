@@ -59,7 +59,7 @@ export class ReservationService {
     const stringfyArr = JSON.stringify(arr);
 
     // 잔액 조회하기
-    const userPoint = await this.pointHistoryRepository.sum('changedPoint', {
+    const userPoint = await this.pointHistoryRepository.sum('point', {
       userId,
     });
 
@@ -91,7 +91,7 @@ export class ReservationService {
       // 결재하기
       await queryRunner.manager.getRepository(PointHistory).save({
         reason: Reason.Buy,
-        changedPoint: price,
+        point: price,
         userId,
       });
       // transaction 커밋
@@ -180,7 +180,7 @@ export class ReservationService {
         .getRepository(PointHistory)
         .save({
           userId: user.userId,
-          changedPoint: penalty,
+          point: penalty,
           reason: Reason.Refund,
         });
       console.log(refund);

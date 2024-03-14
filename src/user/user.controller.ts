@@ -34,15 +34,7 @@ export class UserController {
 
   @UseGuards(AuthGuard('jwt'))
   @Get('profile')
-  getUser(@UserInfo() user: User) {
-    return {
-      userId: user.userId,
-      email: user.email,
-      name: user.userName,
-      role: user.role,
-      phone: user.phone,
-      address: user.address,
-      createdAt: user.createdAt,
-    };
+  getProfile(@UserInfo() user: User) {
+    return this.userService.getProfile(user);
   }
 }

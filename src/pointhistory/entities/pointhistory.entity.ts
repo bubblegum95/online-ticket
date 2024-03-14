@@ -26,7 +26,7 @@ export default class PointHistory {
   reason: Reason;
 
   @Column({ type: 'int', nullable: false })
-  changedPoint: number;
+  point: number;
 
   @CreateDateColumn({ type: 'datetime', nullable: false })
   changedAt: Date;
@@ -34,8 +34,4 @@ export default class PointHistory {
   @ManyToOne(() => User, (User) => User.pointHistory)
   @JoinColumn({ name: 'userId' })
   user: User;
-
-  // @ManyToOne(() => Performance, (Performance) => Performance.pointHistory)
-  // @JoinColumn({ name: 'performId' })
-  // performance: Performance;
 }

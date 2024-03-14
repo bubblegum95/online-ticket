@@ -26,6 +26,9 @@ export class User {
   @Column({ type: 'varchar', unique: true, nullable: false })
   email: string;
 
+  @Column({ type: 'varchar', unique: true, nullable: false })
+  nickname: string;
+
   @Column({ type: 'varchar', select: false, nullable: false })
   password: string;
 
@@ -41,12 +44,18 @@ export class User {
   @Column({ type: 'varchar', nullable: true })
   address: string;
 
-  @OneToMany(() => PointHistory, (pointHistory) => pointHistory.user)
+  @OneToMany(() => PointHistory, (pointHistory) => pointHistory.user, {
+    onDelete: 'CASCADE',
+  })
   pointHistory: PointHistory[];
 
-  @OneToMany(() => Performance, (performance) => performance.user)
+  @OneToMany(() => Performance, (performance) => performance.user, {
+    onDelete: 'CASCADE',
+  })
   performance: Performance[];
 
-  @OneToMany(() => Reservation, (reservation) => reservation.user)
+  @OneToMany(() => Reservation, (reservation) => reservation.user, {
+    onDelete: 'CASCADE',
+  })
   reservation: Reservation[];
 }

@@ -11,6 +11,6 @@ DB_NAME="test_db"
 
 JWT_SECRET_KEY="ticket1234"
 
-### ERD & API 명세서 & 압축 파일
+### ERD & API 명세서
 
 https://www.notion.so/TypeScript-61ab2361b8374a00998a6fe76b1bdb00

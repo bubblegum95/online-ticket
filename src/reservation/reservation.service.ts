@@ -34,6 +34,7 @@ export class ReservationService {
 
   async reserveTicket(seat, user: User, performId: number) {
     const { seatId } = seat;
+    console.log('seatId', seatId);
 
     const { userId } = user;
     let price = 0;
@@ -45,6 +46,10 @@ export class ReservationService {
       findSoldSeat = await this.seatRepository.findOne({
         where: { seatId: seatId[i] },
       });
+
+      if (!findSoldSeat) {
+        throw new BadRequestException(`${seatId}는 없는 좌석입니다.`);
+      }
 
       if (!findSoldSeat.sale) {
         throw new ConflictException(`${seatId}는 이미 예약된 좌석입니다.`);
@@ -119,8 +124,6 @@ export class ReservationService {
       where: { reservationId },
     });
 
-    console.log(foundTicket);
-
     if (!foundTicket) {
       throw new NotFoundException('찾고 있는 예약이 존재하지 않습니다.');
     }
@@ -154,7 +157,6 @@ export class ReservationService {
       // 환불하기 절차: 환불 금액 가져와서 히스토리에 포스팅 -> 예약 정보 삭제하기 -> 좌석에 아이디 빼주고 sale true로 변경
 
       queryRunner.manager.softDelete(Reservation, reservationId);
-      console.log(reservationId);
 
       await queryRunner.manager
         .getRepository(Reservation)
@@ -165,17 +167,14 @@ export class ReservationService {
           reservationId: reservationId,
         })
         .execute();
-      console.log(foundTicket.reservedSeat);
-      const seatArr = JSON.parse(foundTicket.reservedSeat);
 
-      console.log('seatArr', seatArr);
+      const seatArr = JSON.parse(foundTicket.reservedSeat);
 
       for (let i = 0; i < seatArr.length; i++) {
         await queryRunner.manager
           .getRepository(Seat)
           .update({ seatId: seatArr[i] }, { sale: true, userId: null });
       }
-      console.log('업데이트가 잘못됨');
       const refund = await queryRunner.manager
         .getRepository(PointHistory)
         .save({
@@ -183,7 +182,7 @@ export class ReservationService {
           point: penalty,
           reason: Reason.Refund,
         });
-      console.log(refund);
+
       await queryRunner.commitTransaction();
 
       return refund;

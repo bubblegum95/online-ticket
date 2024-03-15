@@ -14,8 +14,8 @@ import { User } from './entities/user.entity';
 import { SignUpDto } from './dto/signUp.dto';
 import { SignInDto } from './dto/signIn.dto';
 import { Role } from './types/userRole.type';
-import PointHistory from 'src/pointhistory/entities/pointhistory.entity';
 import { Reason } from './types/historyReason.type';
+import { PointHistory } from 'src/pointhistory/entities/pointhistory.entity';
 
 @Injectable()
 export class UserService {

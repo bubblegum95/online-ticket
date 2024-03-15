@@ -1,5 +1,5 @@
 import { User } from 'src/user/entities/user.entity';
-import Performance from 'src/performance/entities/performance.entity';
+import { Performance } from 'src/performance/entities/performance.entity';
 import {
   Column,
   CreateDateColumn,
@@ -11,7 +11,7 @@ import {
 } from 'typeorm';
 
 @Entity({ name: 'reservation' })
-export default class Reservation {
+export class Reservation {
   @PrimaryGeneratedColumn({ type: 'int' })
   reservationId: number;
 

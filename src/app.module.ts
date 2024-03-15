@@ -9,10 +9,10 @@ import { PerformanceModule } from './performance/performance.module';
 import { ReservationModule } from './reservation/reservation.module';
 import { SeatModule } from './seat/seat.module';
 import { PointHistoryModule } from './pointhistory/pointhistory.module';
-import PointHistory from './pointhistory/entities/pointhistory.entity';
-import Performance from './performance/entities/performance.entity';
-import Seat from './seat/entities/seat.entity';
-import Reservation from './reservation/entities/reservation.entity';
+import { Performance } from './performance/entities/performance.entity';
+import { Seat } from './seat/entities/seat.entity';
+import { Reservation } from './reservation/entities/reservation.entity';
+import { PointHistory } from './pointhistory/entities/pointhistory.entity';
 
 const typeOrmModuleOptions = {
   useFactory: async (

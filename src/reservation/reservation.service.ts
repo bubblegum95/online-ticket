@@ -6,13 +6,13 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import Reservation from './entities/reservation.entity';
 import { User } from 'src/user/entities/user.entity';
 import { DataSource, Repository } from 'typeorm';
-import Seat from 'src/seat/entities/seat.entity';
-import PointHistory from 'src/pointhistory/entities/pointhistory.entity';
 import { Reason } from 'src/user/types/historyReason.type';
-import Performance from 'src/performance/entities/performance.entity';
+import { Reservation } from './entities/reservation.entity';
+import { Seat } from 'src/seat/entities/seat.entity';
+import { PointHistory } from 'src/pointhistory/entities/pointhistory.entity';
+import { Performance } from 'src/performance/entities/performance.entity';
 
 @Injectable()
 export class ReservationService {

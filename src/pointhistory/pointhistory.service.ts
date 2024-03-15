@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import PointHistory from './entities/pointhistory.entity';
 import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
+import { PointHistory } from './entities/pointhistory.entity';
 
 @Injectable()
 export class PointHistoryService {

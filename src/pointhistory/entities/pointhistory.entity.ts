@@ -15,7 +15,7 @@ import { User } from '../../user/entities/user.entity';
 @Entity({
   name: 'pointHistory',
 })
-export default class PointHistory {
+export class PointHistory {
   @PrimaryGeneratedColumn()
   historyId: number;
 

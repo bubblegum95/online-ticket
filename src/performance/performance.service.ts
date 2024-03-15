@@ -1,13 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostPerformDto } from './dto/postperform.dto';
-import Performance from './entities/performance.entity';
 import { JwtService } from '@nestjs/jwt';
 import { DataSource, Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
-import Seat from 'src/seat/entities/seat.entity';
 import { PutPerformDto } from './dto/putperform.dto';
-
+import { Performance } from './entities/performance.entity';
+import { Seat } from 'src/seat/entities/seat.entity';
 @Injectable()
 export class PerformanceService {
   constructor(

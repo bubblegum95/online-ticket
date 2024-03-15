@@ -11,12 +11,11 @@ import {
 import { Category } from '../types/category.type';
 import { SaleStatus } from '../types/salestatus.type';
 import { User } from 'src/user/entities/user.entity';
-import Reservation from 'src/reservation/entities/reservation.entity';
-import Seat from 'src/seat/entities/seat.entity';
-
+import { Reservation } from 'src/reservation/entities/reservation.entity';
+import { Seat } from 'src/seat/entities/seat.entity';
 @Index('performId', ['performId'], { unique: true })
 @Entity()
-export default class Performance {
+export class Performance {
   @PrimaryGeneratedColumn()
   performId: number;
 

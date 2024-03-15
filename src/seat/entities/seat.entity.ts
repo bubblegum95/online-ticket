@@ -1,4 +1,4 @@
-import Performance from 'src/performance/entities/performance.entity';
+import { Performance } from 'src/performance/entities/performance.entity';
 import {
   Column,
   Entity,
